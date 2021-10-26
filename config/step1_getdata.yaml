@@ -1,0 +1,136 @@
+
+# config file for the first step of the pipeline - get data
+
+#/mnt/R2-D6_data6/DeepRadiation_1GPU/DR_Breast_2_1
+
+#------------------------
+# inputs and outputs
+#------------------------
+io:
+
+  # parent data directory
+  path_to_data_folder: '../data'
+
+  # parent data directory subdir where CHUM raw data should be found
+  CHUM_raw_data_folder_name: 'CHUM_data'
+
+  # parent data directory subdir where CHUS raw data should be found
+  CHUS_raw_data_folder_name: 'CHUS_data'
+
+  # parent data directory subdir where PMH raw data should be found
+  PMH_raw_data_folder_name: 'PMH_data'
+
+  # parent data directory subdir where MDACC raw data should be found
+  MDACC_raw_data_folder_name: 'MDACC_data'
+
+  # parent data directory subdir where CHUM registered data should be saved
+  CHUM_reg_data_folder_name: 'CHUM_data'
+
+  # parent data directory subdir where CHUS registered data should be saved
+  CHUS_reg_data_folder_name: 'CHUS_data'
+
+  # parent data directory subdir where PMH regostered data should be saved
+  PMH_reg_data_folder_name: 'PMH_data'
+
+  # parent data directory subdir where MDACC registered data should be saved
+  MDACC_reg_data_folder_name: 'MDACC_data'
+
+  # parent data directory subdir where train images should be saved
+  train_img_folder_name: 'train_img'
+
+  # parent data directory subdir where val images should be saved
+  val_img_folder_name: 'val_img'
+
+  # parent data directory subdir where CHUM data should be found
+  label_folder_name: 'labels'
+
+  # where CHUM label file should be found
+  CHUS_label_name: 'CHUM_label.csv'
+
+  # where CHUS label fileshould be found
+  CHUS_label_name: 'CHUS_label.csv'
+
+  # where PMH label file should be found
+  PMH_label_name: 'PMH_label.csv'
+
+  # where MDACC label file should be found
+  MDACC_label_name: 'MDACC_label.csv'
+
+
+#----------------------------------------
+# preprocessing and inference parameters
+#----------------------------------------
+processing:
+
+  # whether or not the segmentation masks are available
+  has_manual_seg: true
+
+  # whether or not holes in segmentation masks should be filled
+  fill_mask_holes: true
+
+  # whether or not png images for quality control should be exported
+  export_png: true
+
+  # number of cores to be used for the pre-processing
+  num_cores: 16
+
+  # wheter the input data should be split or not (see input_data_prep.get_files() for more details)
+  create_test_set: "All"
+
+  # size of the images, in voxels, after the first curation step - z is kept dynamic
+  curated_size: [512, 512, 0]
+
+  # spacing of the images, in mm, after the first curation step
+  curated_spacing: [0.68, 0.68, 2.5]
+
+  # xyz size, in voxels, of the downsampled volumes that will be used as input to the model
+  model_input_size: 112
+
+  # xyz spacing, in mm, of the downsampled volumes that will be used as input to the model
+  model_input_spacing: 3.0
+
+#----------------------------------------
+# model parameters
+#---------------------------------------
+model:
+
+  # number of GPUs used
+  mgpu: 4
+
+  # to avoid problems, consider reading this as tuple when training
+  pool_size: [2, 2, 2]
+
+  # to avoid problems, consider reading this as tuple when training
+  conv_size: [3, 3, 3]
+
+  # downsampling steps in the U-Net model
+  down_steps: 4
+
+  #
+  extended: False
+
+  # name of the file where the weights are stored (under "model_weights_folder_name")
+  weights_file_name: "GPU_4.hdf5"
+
+  # hyperparameters used during the training of the heart localization model
+  training:
+
+    dropout: 0.5
+
+    batch_size: 3
+
+    num_epochs: 1200
+
+    lr: 0.00001
+
+    # drop learning rate by (ratio)
+    lr_drop: 0.7
+
+    # drop every
+    drop_epochs: 200
+
+    augmentation:
+      # [zMin, zMax, yMin, yMax, xMin, xMax]
+      augm_translation: [0, 0, -9, 10, -9, 10]
+
+      augm_rotation: [-3, 4, 1]

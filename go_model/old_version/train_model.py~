@@ -1,0 +1,153 @@
+#----------------------------------------------------------------------
+# Deep learning for classification for contrast CT;
+# Transfer learning using Google Inception V3;
+#-----------------------------------------------------------------------------------------
+import os
+import numpy as np
+import pandas as pd
+import seaborn as sn
+import matplotlib.pyplot as plt
+import glob
+from collections import Counter
+from datetime import datetime
+from time import localtime, strftime
+import tensorflow as tf
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import GlobalAveragePooling2D
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.applications import ResNet152V2
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import LearningRateScheduler
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import TensorBoard
+
+from sklearn.model_selection import train_test_split, GroupShuffleSplit
+from sklearn.metrics import classification_report
+from sklearn.metrics import roc_curve, auc, roc_auc_score
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import confusion_matrix
+
+from train_model import callbacks
+from data_utils import plot_train_curve
+
+# ----------------------------------------------------------------------------------
+# train model
+# ----------------------------------------------------------------------------------
+def train_model(model, train_gen, val_gen, batch_size, epoch, output_dir, log_dir, 
+				val_img_dir, input_channel):
+    
+    ### load val data based on input channels
+    if input_channel == 1:
+	    x_val = np.load(os.path.join(val_img_dir, 'val_arr.npy'))
+    elif input_channel == 3:
+	    x_val = np.load(os.path.join(val_img_dir, 'val_arr_3ch.npy'))
+    ### load val labels
+    val_df = pd.read_pickle(os.path.join(val_img_dir, 'val_df.p'))
+    y_val  = np.asarray(val_df['label']).astype('float32').reshape((-1, 1))
+    
+	### fit data into dnn models
+    my_callbacks = callbacks.callbacks(log_dir)
+    history = model.fit(
+        train_gen,
+        steps_per_epoch=train_gen.n//batch_size,
+        epochs=epoch,
+        validation_data=val_gen,
+        #validation_data=(x_val, y_val),
+        validation_steps=val_gen.n//batch_size,
+        #validation_steps=y_val.shape[0]//batch_size,
+        verbose=1,
+        callbacks=my_callbacks,
+        validation_split=None,
+        shuffle=True,
+        class_weight=None,
+        sample_weight=None,
+        initial_epoch=0
+        )
+    #train_acc  = history.history['accuracy']
+    #val_acc    = history.history['val_accuracy']
+    #train_loss = history.history['loss']
+    #val_loss   = history.history['val_loss']
+    #print('train acc:', train_acc)
+    #print('range epoch:', range(epoch))
+    ### valudation acc and loss
+    score = model.evaluate(x_val, y_val)
+    val_loss = np.around(score[0], 3)
+    val_acc  = np.around(score[1], 3)
+    print('val loss:', val_loss)
+    print('val acc:', val_acc)
+    y_pred = model.predict(x_val)
+    y_pred_class = [1 * (x[0]>=0.5) for x in y_pred]
+    
+    ### confusion matrix
+    cm = confusion_matrix(y_val, y_pred_class)
+    print('confusion matrix:')
+    print(cm)
+    cm_norm = cm.astype('float64') / cm.sum(axis=1)[:, np.newaxis]
+    cm_norm = np.around(cm_norm, 2)
+    print(cm_norm)
+    print(classification_report(y_val, y_pred_class, digits=3))
+    
+    ### save a dataframe for val and prediction
+    ID = []
+    df_val_pred = pd.read_pickle(os.path.join(val_img_dir, 'val_df.p'))
+    #print(df_sum.columns)
+    for file in df_val_pred['fn']:
+        id = file.split('\\')[-1].split('_')[0].strip()
+        ID.append(id)
+    df_val_pred['ID'] = ID
+    df_val_pred['y_pred'] = y_pred
+    df_val_pred['y_pred_class'] = y_pred_class
+    df_val_pred.to_pickle(os.path.join(output_dir, 'df_val_pred.p'))
+    
+    ### plot train loss and acc curves
+    #plot_train_curve.plot_train_curve(
+    #    output_dir=output_dir,
+    #    epoch=epoch,
+    #    train_acc=train_acc,
+    #    val_acc=val_acc,
+    #    train_loss=train_loss,
+    #    val_loss=val_loss,
+    #    fn='train_curve'
+    #    )
+    #### save final model
+    fn = str('SavedModel') + '_' + str(strftime('%Y_%m_%d_%H_%M_%S', localtime()))
+    model.save(os.path.join(output_dir, fn))
+
+    return val_loss, val_acc, cm, cm_norm
+
+
+    #print('y_pred:', np.around(y_pred[0:300], 3))
+    #print('y_pred_class:', y_pred_class[0:300])
+    #print('y_val:', y_val[0:300].tolist())
+    ### accuracy curves
+    #plt.style.use('ggplot')
+    #plt.figure(figsize=(15, 15))
+    #plt.subplot(2, 2, 1)
+    #plt.plot(range(epoch), history.history['accuracy'], label='Train Acc')
+    #plt.plot(range(epoch), history.history['val_accuracy'], label='Val Acc')
+    #plt.legend(loc='lower right')
+    #plt.title('Train and Tune Accuracy')
+    #plt.xlabel('Epoch')
+    #plt.ylabel('Accuracy')
+    ### loss curves
+    #plt.subplot(2, 2, 2)
+    #plt.plot(range(epoch), history.history['loss'], label='Train Loss')
+    #plt.plot(range(epoch), history.history['val_loss'], label='Val Loss')
+    #plt.legend(loc='upper right')
+    #plt.title('Train and Val Loss')
+    #plt.xlabel('Epoch')
+    #plt.ylabel('Loss')
+    #plt.show()
+    #plt.savefig('plot.png')
+    #plt.close()
+    
+
+
+    
+
+    

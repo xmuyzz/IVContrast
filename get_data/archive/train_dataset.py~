@@ -1,0 +1,95 @@
+import glob
+import shutil
+import os
+import pandas as pd
+import nrrd
+import re
+import matplotlib
+import matplotlib.pyplot as plt
+import pickle
+import numpy as np
+#import skimage.transform as st
+from tensorflow.keras.utils import to_categorical
+from data_utils import resize_3d
+
+    
+#----------------------------------------------------------------------------------------
+# training dataset
+#----------------------------------------------------------------------------------------
+def train_dataset(train_img_dir, interp_type, input_channel, downsample_size):
+
+    ### load data
+    x_train = pd.read_pickle(os.path.join(train_img_dir, 'x_train.p'))
+    y_train = pd.read_pickle(os.path.join(train_img_dir, 'y_train.p'))
+	
+    ### get image slice and save them as numpy array
+    count = 0
+    list_slice_number = []
+    list_fn = []
+    arr = np.empty([0, 64, 64])
+    for train_file in x_train:
+        count += 1
+        print(count)
+        ### create consistent patient ID format
+        if train_file.split('/')[-1].split('_')[0] == 'PMH':
+            patient_id = 'PMH' + train_file.split('/')[-1].split('-')[1][2:5].strip()
+        elif train_file.split('/')[-1].split('-')[1] == 'CHUM':
+            patient_id = 'CHUM' + train_file.split('/')[-1].split('_')[1].split('-')[2].strip()
+        elif train_file.split('/')[-1].split('-')[1] == 'CHUS':
+            patient_id = 'CHUS' + train_file.split('/')[-1].split('_')[1].split('-')[2].strip()
+        ### resize image to (36, 64, 64)
+        ### sitk axis order (x, y, z), np axis order (z, y, x)
+        resized_arr = resize_3d.resize_3d(
+                nrrd_image=train_file,
+                interp_type=interp_type,
+                output_size=downsample_size
+                ) 
+        #print(data.shape)
+        data = resized_arr[6:32, :, :]
+        ### clear signals lower than -1024
+        data[data <= -1024] = -1024
+        ### strip skull, skull UHI = ~700
+        data[data > 700] = 0
+        ### normalize UHI to 0 - 1, all signlas outside of [0, 1] will be 0;
+        data_interp = np.interp(data, [-200, 200], [0, 1])
+        #data_interp = np.interp(data, [-1024, 3017], [0, 1])
+        arr = np.concatenate([arr, data_interp], 0)
+        ### create patient ID and slice index for img
+        list_slice_number.append(data.shape[0])
+        for i in range(data.shape[0]):
+            img = data[i, :, :]
+            fn = patient_id + '_' + 'slice%s'%(f'{i:03d}')
+            list_fn.append(fn)
+    ### covert 1 channel input to 3 channel inputs for CNN
+    if input_channel == 1:
+        train_arr = arr.reshape(arr.shape[0], 64, 64, 1)
+        print('train_arr shape:', train_arr.shape)
+        np.save(os.path.join(train_img_dir, 'train_arr.npy'), train_arr)
+    elif input_channel == 3:
+        train_arr = np.broadcast_to(arr, (3, arr.shape[0], 64, 64))
+        train_arr = np.transpose(train_arr, (1, 2, 3, 0))
+        print('train_arr shape:', train_arr.shape)
+        np.save(os.path.join(train_img_dir, 'train_arr_3ch.npy'), train_arr)
+    
+    ### generate labels for CT slices
+    list_label = []
+    list_img = []
+    for label, slice_number in zip(y_train, list_slice_number):
+        list_1 = [label] * slice_number
+        list_label.extend(list_1)
+    ### makeing dataframe containing img dir and labels
+    train_df = pd.DataFrame({'fn': list_fn, 'label': list_label})
+    pd.options.display.max_columns = 100
+    pd.set_option('display.max_rows', 500)
+    print(train_df[0:100])
+    train_df.to_pickle(os.path.join(train_img_dir, 'train_df.p'))
+    print('train data size:', train_df.shape[0])
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,97 @@
+import glob
+import shutil
+import os
+import pandas as pd
+import nrrd
+import numpy as np
+import re
+import matplotlib
+import matplotlib.pyplot as plt
+import pickle
+#import skimage.transform as st
+from tensorflow.keras.utils import to_categorical
+from data_utils import resize_3d
+
+
+#----------------------------------------------------------------------------------------
+# val dataset
+#----------------------------------------------------------------------------------------
+def val_dataset(val_img_dir, interp_type, input_channel, downsample_size):
+
+    x_val = pd.read_pickle(os.path.join(val_img_dir, 'x_val.p'))
+    y_val = pd.read_pickle(os.path.join(val_img_dir, 'y_val.p'))
+    
+   ### generate CT slices and save them as numpy array
+    count = 0
+    list_fn = []
+    list_slice_number = []
+    arr = np.empty([0, 64, 64])
+    for val_file in x_val:
+        count += 1
+        print(count)
+        ### create consistent patient ID format
+        if val_file.split('/')[-1].split('_')[0] == 'PMH':
+            patient_id = 'PMH' + val_file.split('/')[-1].split('-')[1][2:5].strip()
+        elif val_file.split('/')[-1].split('-')[1] == 'CHUM':
+            patient_id = 'CHUM' + val_file.split('/')[-1].split('_')[1].split('-')[2].strip()
+        elif val_file.split('/')[-1].split('-')[1] == 'CHUS':
+            patient_id = 'CHUS' + val_file.split('/')[-1].split('_')[1].split('-')[2].strip()
+        ### resize image to (36, 64, 64)
+        ### sitk axis order (x, y, z), np axis order (z, y, x)
+        resized_arr = resize_3d.resize_3d(
+            nrrd_image=val_file,
+            interp_type=interp_type,
+            output_size=downsample_size
+            ) 
+        ### extract img from nrrd files
+        #print(data.shape)
+        data = resized_arr[6:32, :, :]
+        ### normalize CT values to be 0 - 1
+        data[data <= -1024] = -1024
+        data[data > 700] = 0
+        data_interp = np.interp(data, [-200, 200], [0, 1])
+        ### stack all the array to a 4D array
+        arr = np.concatenate([arr, data_interp], 0)
+        ### find img slices for all scans
+        list_slice_number.append(data.shape[0])
+        ### create patient ID and slice index for img
+        for i in range(data.shape[0]):
+            img = data[:, :, i]
+            fn = patient_id + '_' + 'slice%s'%(f'{i:03d}')
+            list_fn.append(fn)
+    ### choose the input channels for transfer learning
+    if input_channel == 1:
+        val_arr = arr.reshape(arr.shape[0], 64, 64, 1)
+        print('val arr shape:', val_arr.shape)
+        np.save(os.path.join(val_img_dir, 'val_arr.npy'), val_arr)
+    elif input_channel == 3:
+        try:
+            val_arr = np.broadcast_to(arr, (3, arr.shape[0], 64, 64))
+            val_arr = np.transpose(train_arr, (1, 2, 3, 0))
+        except Exception as e:
+            print(e)
+        else:
+            print('val arr shape:', val_arr.shape)
+            np.save(os.path.join(val_img_dir, 'val_arr_3ch.npy'), val_arr)
+    
+   ### generate labels for CT slices
+    list_label = []
+    list_img = []
+    for label, slice_number in zip(y_val, list_slice_number):
+        list_1 = [label] * slice_number
+        list_label.extend(list_1)
+    val_df = pd.DataFrame({'fn': list_fn, 'label': list_label})
+    pd.options.display.max_columns = 100
+    pd.set_option('display.max_rows', 500)
+    print(val_df[0:100])
+    ### save dataframe to pickle
+    val_df.to_pickle(os.path.join(val_img_dir, 'val_df.p'))
+    print('val data size:', val_df.shape[0])
+
+    #return val_df
+
+
+
+
+
+
