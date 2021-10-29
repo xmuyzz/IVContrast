@@ -211,51 +211,6 @@ if __name__ == '__main__':
     saved_model = yaml_conf['model']['saved_model']
 
 
-#    model_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/model'
-#    exval_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/exval'
-#    pro_data_dir = '/home/bhkann/zezhong/git_repo/IV-Contrast-CNN-Project/pro_data'
-#    NSCLC_data_dir = '/mnt/aertslab/DATA/Lung/TOPCODER/nrrd_data'
-#    NSCLC_reg_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/data/NSCLC_data_reg'
-#    fixed_img_dir = os.path.join(exval_dir, 'NSCLC001.nrrd')
-#    NSCLC_label_file = 'label_NSCLC.csv'
-#    NSCLC_pin_file = 'harvard_rt.csv'
-#    interp_type = 'linear'
-#    norm_type = 'np_clip'
-#    input_channel = 3
-#    return_type1 = 'nrrd'
-#    return_type2 = 'nrrd'
-#    crop_shape = [192, 192, 140]
-#    new_spacing = [1, 1, 3]
-#    data_exclude = None
-#    slice_range = range(50, 120)
-#    bootstrap = 1000
-#    batch_size = 32
-#    lr = 1e-5
-#    input_channel = 3
-#    thr_img = 0.5
-#    thr_prob = 0.5
-#    thr_pos = 0.5
-#    activation = 'sigmoid'
-#    split = True
-#
-#    freeze_layer = None
-#    epoch = 10
-#    fine_tune = False
-#    plots_only = True
-#    run_type = 'exval2'
-#    run_models = ['EfficientNetB4']
-#    saved_models = ['Tuned_EfficientNetB4_2021_08_27_20_26_55']
-#   
-#    start = timeit.default_timer()
-#    for saved_model, run_model in zip(saved_models, run_models):
-#        run_step5_exval_model()
-#    stop = timeit.default_timer()
-#    print('Run Time:', np.around((stop - start)/60, 0), 'mins')
-#
-
-    
-
-
 
     
 

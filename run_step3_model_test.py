@@ -137,33 +137,3 @@ if __name__ == '__main__':
     
 
     
-#    output_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/output'
-#    log_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/log'
-#    checkpoint_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/log'
-#    val_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/val'
-#    test_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/test'
-#    data_pro_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/data_pro'
-#    pro_data_dir = '/home/bhkann/zezhong/git_repo/IV-Contrast-CNN-Project/pro_data'
-#    model_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/model'
-#    #model_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/output'
-#    #saved_model = 'ResNet_2021_07_18_06_28_40'
-#    saved_model = 'cnn_2021_07_19_00_52_44'
-#    saved_model = 'cnn_2021_07_19_21_56_34'
-#    saved_model = 'EffNet_2021_08_21_22_41_34'
-#    saved_model = 'inception_2021_08_21_15_16_12'
-#    saved_model = 'ResNet_2021_07_18_06_28_40'
-#    bootstrap = 1000
-#    batch_size = 32
-#    epoch = 500
-#    lr = 1e-5
-#    threshold = 0.5
-#    input_channel = 3
-#    crop = True
-#    thr_img = 0.5
-#    thr_prob = 0.5
-#    thr_pos = 0.5
-#    run_model = 'EffNet'
-#    run_type = 'val'
-#    activation = 'sigmoid'
-#    plot_only = False
-    

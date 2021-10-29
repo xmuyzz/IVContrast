@@ -123,28 +123,3 @@ if __name__ == '__main__':
 
 
 
-#    # raw data dirs
-#    maastro_dir = '/mnt/aertslab/USERS/Ahmed/0_FINAL_SEGMENTATION_DATA/maastro/0_image_raw'
-#    ## registration data dirs
-#    maastro_reg = '/mnt/aertslab/USERS/Zezhong/contrast_detection/ahmed_data/maastro'
-#    ahmed_data_dir = '/home/bhkann/zezhong/git_repo/IV-Contrast-CNN-Project/ahmed_data'
-#    model_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/model'
-#    saved_model = 'FineTuned_model_2021_07_27_16_44_40'
-#    fixed_img_dir = os.path.join(ahmed_data_dir, 'NSCLC001.nrrd')
-#    downsample_size = (96, 96, 36)
-#    crop_shape = [192, 192, 140]
-#    new_spacing = [1, 1, 3]
-#    slice_range = range(50, 120)
-#    thr_img = 0.5
-#    thr_prob = 0.5
-#
-#    ## patient df
-#    fns_pat_df = 'maastro_pat.csv'
-#    ## image df
-#    fns_img_df = 'maastro_img.csv'
-#    ## image numpy array
-#    fns_arr = 'maastro_arr.npy'
-#    ## patient level prediction df
-#    fns_pat_pred = 'maastro_pat_pred.csv'
-#    ## patient level prediction df
-#    fns_img_pred = 'maastro_img_pred.csv'

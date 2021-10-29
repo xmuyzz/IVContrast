@@ -155,37 +155,4 @@ if __name__ == '__main__':
     run_step1_get_data()
 
 
-#    train_img_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/train_img_dir'
-#    val_img_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/val_img_dir'
-#    test_img_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/test_img_dir'
-#    CHUM_data_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/0_image_raw_CHUM'
-#    CHUS_data_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/0_image_raw_CHUS'
-#    PMH_data_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/0_image_raw_PMH'
-#    MDACC_data_dir = '/media/bhkann/HN_RES1/HN_CONTRAST/0_image_raw_MDACC'
-#    CHUM_reg_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/data/CHUM_data_reg'
-#    CHUS_reg_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/data/CHUS_data_reg'
-#    PMH_reg_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/data/PMH_data_reg'
-#    MDACC_reg_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/data/MDACC_data_reg'
-#    label_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/data_pro'
-#    data_pro_dir = '/mnt/aertslab/USERS/Zezhong/contrast_detection/data_pro'
-#    pro_data_dir = '/home/bhkann/zezhong/git_repo/IV-Contrast-CNN-Project/pro_data'
-#    fixed_img_dir = os.path.join(data_pro_dir, 'PMH050.nrrd')
-#    CHUM_label_csv = 'label_CHUM.csv'
-#    CHUS_label_csv = 'label_CHUS.csv'
-#    PMH_label_csv = 'label_PMH.csv'
-#    MDACC_label_csv = 'label_MDACC.csv'
-#    interp_type = 'linear'
-#    new_spacing = (1, 1, 3)
-#    data_exclude = None
-#    slice_range = range(17, 83)
-#    output_size = (96, 96, 36)
-#    input_channel = 3
-#    return_type1 = 'nrrd'
-#    return_type2 = 'npy'
-#    norm_type = 'np_clip'  #'np_interp'          # 'np_clip'
-#    crop_shape = [192, 192, 100]
-#    data_exclude = None
-#    fns_arr_1ch = ['train_arr_1ch.npy', 'val_arr_1ch.npy', 'test_arr_1ch.npy']
-#    fns_arr_3ch = ['train_arr_3ch.npy', 'val_arr_3ch.npy', 'test_arr_3ch.npy']
-#    fns_df = ['train_img_df.csv', 'val_img_df.csv', 'test_img_df.csv']
     
