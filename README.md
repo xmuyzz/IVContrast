@@ -1,4 +1,4 @@
-# DeepContrast
+# IVContrast
 
 Fully automatic deep learning system to detect IV Contrast in CT scans.
 
